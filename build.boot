@@ -6,7 +6,8 @@
           :dependencies   '[[org.clojure/clojure "1.9.0-alpha15"]
                             [quil "2.6.0"]
                             [adzerk/boot-test "RELEASE" :scope "test"]
-                            [org.clojure/test.check "0.9.0"]])
+                            [org.clojure/test.check "0.9.0"]
+                            [org.clojure/math.numeric-tower "0.0.4"]])
 
 (task-options!
  aot {:namespace   #{'evo-images.core}}
