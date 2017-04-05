@@ -20,7 +20,7 @@
 (s/def ::shape (s/keys :req-un [::color ::points]))
 (s/def ::creature (s/coll-of ::shape :kind vector? :count 50))
 
-(s/def ::fitness (s/and int? #(>= % 0)))
+(s/def ::fitness (s/double-in 0 100))
 (s/def ::iteration (s/and int? #(>= % 0)))
 (s/def ::state (s/cat :iteration ::iteration
                       :max-fitness ::fitness
@@ -79,7 +79,7 @@
 
 (defn- compete [max-fitness best competing]
   (let [competing-fitness (compute-fitness competing)]
-    (if (< competing-fitness max-fitness)
+    (if (> competing-fitness max-fitness)
       [competing-fitness competing]
       [max-fitness best])))
 
@@ -104,7 +104,7 @@
 
 (defn init-state []
   (let [initial-creature (create-creature)]
-    [0 0 initial-creature initial-creature]))
+    [0 0.0 initial-creature initial-creature]))
 
 
 ;; Instrumentation
