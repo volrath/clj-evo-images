@@ -7,7 +7,9 @@
                             [quil "2.6.0"]
                             [adzerk/boot-test "RELEASE" :scope "test"]
                             [org.clojure/test.check "0.9.0"]
-                            [org.clojure/math.numeric-tower "0.0.4"]])
+                            [org.clojure/math.numeric-tower "0.0.4"]
+                            [predominance "0.1.2"]
+                            [slingshot "0.12.2"]])
 
 (task-options!
  aot {:namespace   #{'evo-images.core}}
