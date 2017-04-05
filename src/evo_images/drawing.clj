@@ -1,7 +1,6 @@
 (ns evo-images.drawing
-  (:require [clojure.spec :as s]
-            [quil.core :as q]
-            [quil.middleware :as m]))
+  (:require [clojure.math.numeric-tower :refer [abs]]
+            [quil.core :as q]))
 
 (def img (ref nil))
 (def size 200)
@@ -51,8 +50,11 @@
     (q/rect 0 300 800 25)
     (q/fill 0)
     (q/text-align :center)
-    (q/text (str "Iteration: " iteration ", Max Fitness: " max-fitness) 400 315))
-  )
+    (q/text (str "Iteration: " iteration ", Max Fitness: " max-fitness) 400 315)))
 
 (defn compute-fitness [creature]
-  0)
+  (let [creature-img    (q/get-pixel 550 50 size size)
+        creature-pixels (q/pixels creature-img)
+        original-pixels (q/pixels @img)
+        distance        (fn [p1 p2] (abs (- p1 p2)))]
+    (reduce + (map distance creature-pixels original-pixels))))
