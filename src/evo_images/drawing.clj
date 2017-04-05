@@ -4,11 +4,13 @@
 
 (def img (ref nil))
 (def size 200)
+(def fitness-norm-coef (* size size 3 255))
 
 (defn setup-sketch! []
   (dosync
    (ref-set img (q/load-image "botw.jpg")))
 
+  (q/frame-rate 10000)
   (q/background 240)                   ; Clear the sketch by filling it with light-grey color.
   (q/image @img 50 50)                 ; Draw our image
   )
@@ -52,9 +54,20 @@
     (q/text-align :center)
     (q/text (str "Iteration: " iteration ", Max Fitness: " max-fitness) 400 315)))
 
-(defn compute-fitness [creature]
+(defn- color-distance [c1 c2]
+  (let [to-rgb  (fn [c] (map (fn [f] (f c)) [q/red q/green q/blue]))
+        rgb1    (to-rgb c1)
+        rgb2    (to-rgb c2)
+        distance (fn [p1 p2] (abs (- p1 p2)))]
+    (reduce + (map distance rgb1 rgb2))))
+
+(defn- compute-real-fitness [creature]
   (let [creature-img    (q/get-pixel 550 50 size size)
         creature-pixels (q/pixels creature-img)
-        original-pixels (q/pixels @img)
-        distance        (fn [p1 p2] (abs (- p1 p2)))]
-    (reduce + (map distance creature-pixels original-pixels))))
+        original-pixels (q/pixels @img)]
+    (reduce + (map color-distance creature-pixels original-pixels))))
+
+(defn compute-fitness
+  "A normalized fitness..."
+  [creature]
+  (* 100 (- 1 (/ (compute-real-fitness creature) fitness-norm-coef))))
