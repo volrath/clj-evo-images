@@ -1,6 +1,8 @@
 (ns evo-images.drawing
   (:require [clojure.java.io :as io]
             [clojure.math.numeric-tower :refer [abs]]
+            [clojure.spec :as s]
+            [clojure.spec.test :as stest]
             [predominance.core :refer [color]]
             [quil.core :as q]))
 
@@ -77,3 +79,47 @@
   "A normalized fitness..."
   [creature]
   (* 100 (- 1 (/ (compute-real-fitness creature) fitness-norm-coef))))
+
+
+                                        ; Instrumentation
+
+(s/fdef setup-sketch!
+        :args (s/cat :img-src string?))
+
+(s/fdef dominant-color
+        :args (s/cat :img-src string?)
+        :ret  :evo-images.evolution/color)
+
+(s/fdef draw-creature
+        :args (s/cat :cx int? :cy int? :creature :evo-images.evolution/creature))
+
+(s/fdef draw
+        :args (s/coll-of :evo-images.evolution/state :count 1))
+
+(s/fdef color-distance
+        :args (s/cat :c1 int? :c2 int?)
+        :ret  int?)
+
+(s/fdef compute-real-fitness
+        :args (s/coll-of :evo-images.evolution/creature :count 1)
+        :ret  int?)
+
+(s/fdef compute-fitness
+        :args (s/coll-of :evo-images.evolution/creature :count 1)
+        :ret  double?)
+
+;; (do (stest/unstrument `setup-sketch!)
+;;     (stest/unstrument `dominant-color)
+;;     (stest/unstrument `draw-creature)
+;;     (stest/unstrument `draw)
+;;     (stest/unstrument `color-distance)
+;;     (stest/unstrument `compute-real-fitness)
+;;     (stest/unstrument `compute-fitness))
+
+;; (do (stest/instrument `setup-sketch!)
+;;     (stest/instrument `dominant-color)
+;;     (stest/instrument `draw-creature)
+;;     (stest/instrument `draw)
+;;     (stest/instrument `color-distance)
+;;     (stest/instrument `compute-real-fitness)
+;;     (stest/instrument `compute-fitness))
