@@ -2,68 +2,44 @@
   (:require [clojure.spec :as s]
             [clojure.spec.gen :as gen]
             [clojure.spec.test :as stest]
-            [evo-images.drawing :refer [compute-fitness]]))
-
-(def max-shapes 50)
-(def max-points 6)
-
-;; Specs
-
-(s/def ::x (s/int-in 0 200))
-(s/def ::y (s/int-in 0 200))
-(s/def ::point (s/keys :req-un [::x ::y]))
-(s/def ::points (s/coll-of ::point :kind vector? :count max-points))
-(s/def ::color (s/cat :R (s/int-in 0 256)
-                      :G (s/int-in 0 256)
-                      :B (s/int-in 0 256)
-                      :A (s/int-in 0 256)))
-(s/def ::shape (s/keys :req-un [::color ::points]))
-(s/def ::creature (s/coll-of ::shape :kind vector? :count 50))
-
-(s/def ::fitness (s/double-in 0 100))
-(s/def ::iteration (s/and int? #(>= % 0)))
-(s/def ::state (s/cat :iteration ::iteration
-                      :max-fitness ::fitness
-                      :best ::creature
-                      :competing ::creature))
+            [evo-images.drawing :refer [compute-fitness]]
+            [evo-images.specs :refer [max-points max-shapes]]))
 
 
-;; And the actual implementation...
-;; --------------------------------
+                                        ; Initializers
+
+(defn create-creature
+  ([]
+   ;; the custom generators in https://clojure.org/guides/spec story
+   ;; (into [] (take max-shapes (repeatedly #(gen/generate (s/gen :evo-images.evolution/shape)))))
+   (gen/generate (s/gen :evo-images.evolution/creature)))
+  ([tint]
+   (let [creature (create-creature)
+         tint-shape (fn [shape] (assoc shape :color tint))]
+     (mapv tint-shape creature))))
+
+(defn init-state [dominant-color]
+  (let [initial-creature (create-creature dominant-color)]
+    [0 0.0 initial-creature initial-creature]))
+
 
                                         ; Mutation
-
-(s/fdef mutate-shape-points
-        :args (s/cat :points ::points)
-        :ret  ::points)
-
-(s/fdef mutate-shape-color
-        :args (s/cat :color (s/coll-of int? :count 4))
-        :ret  ::color)
-
-(s/fdef mutate-shape
-        :args (s/cat :shape ::shape)
-        :ret  ::shape)
-
-(s/fdef mutate
-        :args (s/cat :creature ::creature)
-        :ret  ::creature)
 
 (defn mutate-shape-points
   "Mutates just one point of the list"
   [points]
-  (assoc points (rand-int max-points) (gen/generate (s/gen ::point))))
+  (assoc points (rand-int max-points) (gen/generate (s/gen :evo-images.evolution/point))))
 
 (defn mutate-shape-color [color]
   (let [roulette (rand)]
     (cond
-      (< roulette 0.2) (gen/generate (s/gen ::color))
+      (< roulette 0.2) (gen/generate (s/gen :evo-images.evolution/color))
       :else (assoc (into [] color) (rand-int 4) (rand-int 256)))))
 
 (defn- mutate-shape [shape]
   (let [roulette (rand)]
     (cond
-      (< roulette 0.1)  (gen/generate (s/gen ::shape)) ; Change the whole shape for a new one
+      (< roulette 0.1)  (gen/generate (s/gen :evo-images.evolution/shape)) ; Change the whole shape for a new one
       (< roulette 0.55) (update shape :color mutate-shape-color)
       :else             (update shape :points mutate-shape-points))))
 
@@ -71,11 +47,7 @@
   (update creature (rand-int max-shapes) mutate-shape))
 
 
-                                        ; Evolution
-
-(s/fdef compete
-        :args (s/cat :max-fitness ::fitness :best ::creature :competing ::creature)
-        :ret  (s/cat :max-fitness ::fitness :best ::creature))
+                                        ; Survival
 
 (defn- compete [max-fitness best competing]
   (let [competing-fitness (compute-fitness competing)]
@@ -92,39 +64,52 @@
      (mutate best)]))
 
 
-                                        ; Initializers
+                                        ; Instrumentation
+
+;; Initializers
 
 (s/fdef init-state
-        :ret ::state)
+        :ret :evo-images.evolution/state)
 
 (s/fdef create-creature
-        :args (s/cat :tint (s/? ::color))
-        :ret  ::creature)
+        :args (s/cat :tint (s/? (s/coll-of int? :count 4)))  ;; ::color
+        :ret  :evo-images.evolution/creature)
 
-(defn create-creature
-  ([]
-   ;; the custom generators in https://clojure.org/guides/spec story
-   ;; (into [] (take max-shapes (repeatedly #(gen/generate (s/gen ::shape)))))
-   (gen/generate (s/gen ::creature)))
-  ([tint]
-   (let [creature (create-creature)
-         tint-shape (fn [shape] (assoc shape :color tint))]
-     (mapv tint-shape creature))))
+;; Mutation
 
-(defn init-state [dominant-color]
-  (let [initial-creature (create-creature dominant-color)]
-    [0 0.0 initial-creature initial-creature]))
+(s/fdef mutate-shape-points
+        :args (s/cat :points :evo-images.evolution/points)
+        :ret  :evo-images.evolution/points)
 
+(s/fdef mutate-shape-color
+        :args (s/coll-of :evo-images.evolution/color :count 1)
+        :ret  :evo-images.evolution/color)
 
-;; Instrumentation
+(s/fdef mutate-shape
+        :args (s/cat :shape :evo-images.evolution/shape)
+        :ret  :evo-images.evolution/shape)
+
+(s/fdef mutate
+        :args (s/cat :creature :evo-images.evolution/creature)
+        :ret  :evo-images.evolution/creature)
+
+;; Survival
+
+(s/fdef compete
+        :args (s/cat :max-fitness :evo-images.evolution/fitness :best :evo-images.evolution/creature :competing :evo-images.evolution/creature)
+        :ret  (s/cat :max-fitness :evo-images.evolution/fitness :best :evo-images.evolution/creature))
+
+(s/fdef evolve
+        :args (s/coll-of :evo-images.evolution/state :count 1)
+        :ret  :evo-images.evolution/state)
 
 (do (stest/unstrument `mutate-shape-points)
     (stest/unstrument `mutate-shape-color)
     (stest/unstrument `mutate-shape)
     (stest/unstrument `mutate)
     (stest/unstrument `compete)
-    ;; (stest/unstrument `evolve)
-    ;; (stest/unstrument `create-creature)
+    (stest/unstrument `evolve)
+    (stest/unstrument `create-creature)
     (stest/unstrument `init-state))
 
 (do (stest/instrument `mutate-shape-points)
@@ -132,6 +117,6 @@
     (stest/instrument `mutate-shape)
     (stest/instrument `mutate)
     (stest/instrument `compete)
-    ;; (stest/instrument `evolve)
-    ;; (stest/instrument `create-creature)
+    (stest/instrument `evolve)
+    (stest/instrument `create-creature)
     (stest/instrument `init-state))

@@ -4,12 +4,11 @@
             [predominance.core :refer [color]]
             [quil.core :as q]))
 
-(def img-src "botw.jpg")
 (def img (ref nil))
 (def size 200)
 (def fitness-norm-coef (* size size 3 255))
 
-(defn setup-sketch! []
+(defn setup-sketch! [img-src]
   (dosync
    (ref-set img (q/load-image img-src)))
 
@@ -18,7 +17,7 @@
   (q/image @img 50 50)                 ; Draw our image
   )
 
-(defn dominant-color []
+(defn dominant-color [img-src]
   (let [c (color (io/as-file (str "resources/" img-src)))]
     [(.getRed c) (.getGreen c) (.getBlue c) 255]))
 
