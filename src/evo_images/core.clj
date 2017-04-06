@@ -24,3 +24,5 @@
 
      ;; :features [:keep-on-top]
      :middleware [m/fun-mode])))
+
+;; (start)
