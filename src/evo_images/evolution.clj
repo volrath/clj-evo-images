@@ -97,13 +97,22 @@
 (s/fdef init-state
         :ret ::state)
 
-(defn create-creature []  ;; it'd be awesome to transform it into a gen
-  ;; the custom generators in https://clojure.org/guides/spec story
-  ;; (into [] (take max-shapes (repeatedly #(gen/generate (s/gen ::shape)))))
-  (gen/generate (s/gen ::creature)))
+(s/fdef create-creature
+        :args (s/cat :tint (s/? ::color))
+        :ret  ::creature)
 
-(defn init-state []
-  (let [initial-creature (create-creature)]
+(defn create-creature
+  ([]
+   ;; the custom generators in https://clojure.org/guides/spec story
+   ;; (into [] (take max-shapes (repeatedly #(gen/generate (s/gen ::shape)))))
+   (gen/generate (s/gen ::creature)))
+  ([tint]
+   (let [creature (create-creature)
+         tint-shape (fn [shape] (assoc shape :color tint))]
+     (mapv tint-shape creature))))
+
+(defn init-state [dominant-color]
+  (let [initial-creature (create-creature dominant-color)]
     [0 0.0 initial-creature initial-creature]))
 
 
@@ -115,6 +124,7 @@
     (stest/unstrument `mutate)
     (stest/unstrument `compete)
     ;; (stest/unstrument `evolve)
+    ;; (stest/unstrument `create-creature)
     (stest/unstrument `init-state))
 
 (do (stest/instrument `mutate-shape-points)
@@ -123,4 +133,5 @@
     (stest/instrument `mutate)
     (stest/instrument `compete)
     ;; (stest/instrument `evolve)
+    ;; (stest/instrument `create-creature)
     (stest/instrument `init-state))

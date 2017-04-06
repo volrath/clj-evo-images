@@ -1,13 +1,13 @@
 (ns evo-images.core
   (:gen-class)
-  (:require [evo-images.drawing :refer [draw setup-sketch!]]
+  (:require [evo-images.drawing :refer [dominant-color draw setup-sketch!]]
             [evo-images.evolution :refer [evolve init-state]]
             [quil.core :as q]
             [quil.middleware :as m]))
 
 (defn setup []
   (setup-sketch!)
-  (init-state))
+  (init-state (dominant-color)))
 
 
 (q/defsketch evo-images

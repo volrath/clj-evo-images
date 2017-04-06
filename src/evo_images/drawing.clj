@@ -1,19 +1,26 @@
 (ns evo-images.drawing
-  (:require [clojure.math.numeric-tower :refer [abs]]
+  (:require [clojure.java.io :as io]
+            [clojure.math.numeric-tower :refer [abs]]
+            [predominance.core :refer [color]]
             [quil.core :as q]))
 
+(def img-src "botw.jpg")
 (def img (ref nil))
 (def size 200)
 (def fitness-norm-coef (* size size 3 255))
 
 (defn setup-sketch! []
   (dosync
-   (ref-set img (q/load-image "botw.jpg")))
+   (ref-set img (q/load-image img-src)))
 
   (q/frame-rate 10000)
   (q/background 240)                   ; Clear the sketch by filling it with light-grey color.
   (q/image @img 50 50)                 ; Draw our image
   )
+
+(defn dominant-color []
+  (let [c (color (io/as-file (str "resources/" img-src)))]
+    [(.getRed c) (.getGreen c) (.getBlue c) 255]))
 
 (defn- draw-creature [cx cy creature]
   (q/with-translation [cx cy]
