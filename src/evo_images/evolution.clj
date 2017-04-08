@@ -26,7 +26,7 @@
 
 (defn init-state [dominant-color]
   (let [initial-creature (create-creature dominant-color)]
-    [0 0.0 initial-creature initial-creature]))
+    [0 0 0.0 initial-creature initial-creature]))
 
 
                                         ; Mutation
@@ -64,9 +64,10 @@
       [max-fitness best])))
 
 (defn evolve [state]
-  (let [[iteration max-fitness best competing] state
-        [max-fitness best] (compete max-fitness best competing)]
+  (let [[iteration improvements old-max-fitness best competing] state
+        [max-fitness best] (compete old-max-fitness best competing)]
     [(inc iteration)
+     (if (> max-fitness old-max-fitness) (inc improvements) improvements)
      max-fitness
      best
      (mutate best)]))

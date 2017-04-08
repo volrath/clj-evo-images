@@ -13,7 +13,7 @@
 (defn start [img-src]
   (q/defsketch evo-images
     :title "Evolving images"
-    :size [800 325]
+    :size [800 300]
 
     :setup  (setup (or img-src "botw.jpg"))
     :update evolve

@@ -20,8 +20,9 @@
 (s/def :evo-images.evolution/creature (s/coll-of :evo-images.evolution/shape :kind vector? :count 50))
 
 (s/def :evo-images.evolution/fitness (s/double-in 0 100))
-(s/def :evo-images.evolution/iteration (s/and int? #(>= % 0)))
-(s/def :evo-images.evolution/state (s/cat :iteration :evo-images.evolution/iteration
-                                          :max-fitness :evo-images.evolution/fitness
-                                          :best :evo-images.evolution/creature
-                                          :competing :evo-images.evolution/creature))
+(s/def :evo-images.evolution/mutation (s/or :zero zero? :pos-int pos-int?))
+(s/def :evo-images.evolution/state (s/cat :iteration    :evo-images.evolution/iteration
+                                          :improvements :evo-images.evolution/mutation
+                                          :max-fitness  :evo-images.evolution/fitness
+                                          :best         :evo-images.evolution/creature
+                                          :competing    :evo-images.evolution/creature))

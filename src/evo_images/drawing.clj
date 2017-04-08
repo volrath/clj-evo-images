@@ -1,6 +1,6 @@
 (ns evo-images.drawing
   (:require [clojure.java.io :as io]
-            [clojure.math.numeric-tower :refer [abs]]
+            [clojure.math.numeric-tower :refer [abs expt round]]
             [clojure.spec :as s]
             [clojure.spec.test :as stest]
             evo-images.specs
@@ -50,18 +50,33 @@
     ))
 
 
+(defn draw-text-box [text bx by bw bh]
+  (q/with-translation [bx by]
+    (q/fill 232)
+    (q/rect 0 0 bw bh)
+    ;; Set the text
+    (q/fill 0)
+    (q/text-align :center)
+    (q/text text (/ bw 2) (+ 4 (/ bh 2)))))
+
+(defn round-places [number decimals]
+  (let [factor (expt 10 decimals)]
+    (double (/ (round (* factor number)) factor))))
+
 (defn draw [state]
   (q/no-stroke)
-  (let [[iteration max-fitness best competing] state]
+  (let [[iteration improvements max-fitness best competing] state]
     (draw-creature 300 50 best)
     (draw-creature 550 50 competing)
 
     ;; Debug text
-    (q/fill 255 255 255)
-    (q/rect 0 300 800 25)
-    (q/fill 0)
-    (q/text-align :center)
-    (q/text (str "Iteration: " iteration ", Max Fitness: " max-fitness) 400 315)))
+    (draw-text-box (str "Fitness: " (round-places max-fitness 6)) 300 25 200 25)
+    (draw-text-box (str "Improvements: " improvements) 300 250 200 25)
+
+    (draw-text-box (str "M/s: " (round-places (q/current-frame-rate) 1)) 550 25 200 25)
+    (draw-text-box (str "Mutations: " iteration) 550 250 200 25)
+
+    (draw-text-box (str "Elapsed time: " (round-places (/ (q/millis) 1000) 2) "s") 50 25 200 25)))
 
 (defn- color-distance [c1 c2]
   (let [to-rgb  (fn [c] (map (fn [f] (f c)) [q/red q/green q/blue]))
