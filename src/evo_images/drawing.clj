@@ -3,6 +3,7 @@
             [clojure.math.numeric-tower :refer [abs]]
             [clojure.spec :as s]
             [clojure.spec.test :as stest]
+            evo-images.specs
             [predominance.core :refer [color]]
             [quil.core :as q]))
 

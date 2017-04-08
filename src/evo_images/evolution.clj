@@ -3,6 +3,7 @@
             [clojure.spec.gen :as gen]
             [clojure.spec.test :as stest]
             [evo-images.drawing :refer [compute-fitness]]
+            evo-images.specs
             [evo-images.specs :refer [max-points max-shapes]]))
 
 

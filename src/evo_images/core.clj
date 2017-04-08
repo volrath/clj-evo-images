@@ -2,7 +2,6 @@
   (:gen-class)
   (:require [evo-images.drawing :refer [dominant-color draw setup-sketch!]]
             [evo-images.evolution :refer [evolve init-state]]
-            evo-images.specs
             [quil.core :as q]
             [quil.middleware :as m]))
 
