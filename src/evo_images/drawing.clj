@@ -8,8 +8,8 @@
             [quil.core :as q]))
 
 (def img (ref nil))
-(def size 200)
-(def fitness-norm-coef (* size size 3 255))
+(def img-size 200)
+(def fitness-norm-coef (* img-size img-size 3 255))
 
 (defn setup-sketch! [img-src]
   (dosync
@@ -27,7 +27,7 @@
 (defn- draw-creature [cx cy creature]
   (q/with-translation [cx cy]
     (q/fill 255 255 255)  ;; white background, but maybe black is better?
-    (q/rect 0 0 size size)
+    (q/rect 0 0 img-size img-size)
 
     (doseq [shape creature]
       (apply q/fill (:color shape))
@@ -71,7 +71,7 @@
     (reduce + (map distance rgb1 rgb2))))
 
 (defn- compute-real-fitness [creature]
-  (let [creature-img    (q/get-pixel 550 50 size size)
+  (let [creature-img    (q/get-pixel 550 50 img-size img-size)
         creature-pixels (q/pixels creature-img)
         original-pixels (q/pixels @img)]
     (reduce + (map color-distance creature-pixels original-pixels))))
