@@ -2,17 +2,22 @@
   (:require [clojure.spec :as s]
             [clojure.spec.gen :as gen]
             [clojure.spec.test :as stest]
-            [evo-images.drawing :refer [compute-fitness]]
+            [evo-images.drawing :refer [compute-fitness img-size]]
             evo-images.specs
             [evo-images.specs :refer [max-points max-shapes]]))
+
+
+(def mutation-thresholds
+  "Probability of swaping an entire shape/color/point when mutating"
+  {:swap-shape 0
+   :swap-color 0
+   :swap-point 0})
 
 
                                         ; Initializers
 
 (defn create-creature
   ([]
-   ;; the custom generators in https://clojure.org/guides/spec story
-   ;; (into [] (take max-shapes (repeatedly #(gen/generate (s/gen :evo-images.evolution/shape)))))
    (gen/generate (s/gen :evo-images.evolution/creature)))
   ([tint]
    (let [creature (create-creature)
@@ -26,23 +31,25 @@
 
                                         ; Mutation
 
-(defn mutate-shape-points
-  "Mutates just one point of the list"
-  [points]
-  (assoc points (rand-int max-points) (gen/generate (s/gen :evo-images.evolution/point))))
+(defn mutate-shape-points [points]
+  (let [roulette (rand)]
+    (cond
+      (< roulette (:swap-point mutation-thresholds)) (assoc points (rand-int max-points) (gen/generate (s/gen :evo-images.evolution/point)))
+      :else (assoc-in points [(rand-int max-points) (rand-nth [:x :y])] (rand-int (+ img-size 1))))))
 
 (defn mutate-shape-color [color]
   (let [roulette (rand)]
     (cond
-      (< roulette 0.2) (gen/generate (s/gen :evo-images.evolution/color))
+      (< roulette (:swap-color mutation-thresholds)) (gen/generate (s/gen :evo-images.evolution/color))
       :else (assoc (into [] color) (rand-int 4) (rand-int 256)))))
 
 (defn- mutate-shape [shape]
-  (let [roulette (rand)]
+  (let [roulette (rand)
+        whole-piece-threshold (:swap-shape mutation-thresholds)]
     (cond
-      (< roulette 0.1)  (gen/generate (s/gen :evo-images.evolution/shape)) ; Change the whole shape for a new one
-      (< roulette 0.55) (update shape :color mutate-shape-color)
-      :else             (update shape :points mutate-shape-points))))
+      (< roulette whole-piece-threshold)             (gen/generate (s/gen :evo-images.evolution/shape)) ; Change the whole shape for a new one
+      (< roulette (/ (- 1 whole-piece-threshold) 2)) (update shape :color mutate-shape-color)
+      :else                                          (update shape :points mutate-shape-points))))
 
 (defn- mutate [creature]
   (update creature (rand-int max-shapes) mutate-shape))
@@ -97,8 +104,11 @@
 ;; Survival
 
 (s/fdef compete
-        :args (s/cat :max-fitness :evo-images.evolution/fitness :best :evo-images.evolution/creature :competing :evo-images.evolution/creature)
-        :ret  (s/cat :max-fitness :evo-images.evolution/fitness :best :evo-images.evolution/creature))
+        :args (s/cat :max-fitness :evo-images.evolution/fitness
+                     :best        :evo-images.evolution/creature
+                     :competing   :evo-images.evolution/creature)
+        :ret  (s/cat :max-fitness :evo-images.evolution/fitness
+                     :best        :evo-images.evolution/creature))
 
 (s/fdef evolve
         :args (s/coll-of :evo-images.evolution/state :count 1)
