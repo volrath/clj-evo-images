@@ -10,18 +10,17 @@
     (setup-sketch! img-src)
     (init-state (dominant-color img-src))))
 
-(defn start
-  ([] (start "botw.jpg"))
-  ([img-src]
-   (q/defsketch evo-images
-     :title "Evolving images"
-     :size [800 325]
+(defn start [img-src]
+  (q/defsketch evo-images
+    :title "Evolving images"
+    :size [800 325]
 
-     :setup  (setup img-src)
-     :update evolve
-     :draw   draw
+    :setup  (setup (or img-src "botw.jpg"))
+    :update evolve
+    :draw   draw
 
-     ;; :features [:keep-on-top]
-     :middleware [m/fun-mode])))
+    ;; :features [:keep-on-top]
+    :middleware [m/fun-mode]))
 
-;; (start)
+(defn -main [& args]
+  (start (first args)))
