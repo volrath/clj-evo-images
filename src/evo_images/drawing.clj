@@ -79,9 +79,9 @@
     (draw-text-box (str "Elapsed time: " (round-places (/ (q/millis) 1000) 2) "s") 50 25 200 25)))
 
 (defn- color-distance [c1 c2]
-  (let [to-rgb  (fn [c] (map (fn [f] (f c)) [q/red q/green q/blue]))
-        rgb1    (to-rgb c1)
-        rgb2    (to-rgb c2)
+  (let [to-rgb   (fn [c] (map (fn [f] (f c)) [q/red q/green q/blue]))
+        rgb1     (to-rgb c1)
+        rgb2     (to-rgb c2)
         distance (fn [p1 p2] (abs (- p1 p2)))]
     (reduce + (map distance rgb1 rgb2))))
 
