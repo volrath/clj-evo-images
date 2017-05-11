@@ -24,11 +24,13 @@
          tint-shape (fn [shape] (assoc shape :color tint))]
      (mapv tint-shape creature))))
 
-(defn init-state [dominant-color]
-  (let [initial-creature (if (nil? dominant-color)
-                           (create-creature)
-                           (create-creature dominant-color))]
-    [0 0 0.0 initial-creature initial-creature]))
+(defn init-state
+  ([]
+   (let [initial-creature (create-creature)]
+     [0 0 0.0 initial-creature initial-creature]))
+  ([dominant-color]
+   (let [initial-creature (create-creature dominant-color)]
+     [0 0 0.0 initial-creature initial-creature])))
 
 
                                         ; Mutation
