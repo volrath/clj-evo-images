@@ -2,7 +2,6 @@
   (:require [clojure.java.io :as io]
             [clojure.math.numeric-tower :refer [abs expt round]]
             [clojure.spec :as s]
-            [clojure.spec.test :as stest]
             evo-images.specs
             [predominance.core :refer [color]]
             [quil.core :as q]))
@@ -11,13 +10,17 @@
 (def img-size 200)
 (def fitness-norm-coef (* img-size img-size 3 255))
 
+(defn round-places [number decimals]
+  (let [factor (expt 10 decimals)]
+    (double (/ (round (* factor number)) factor))))
+
 (defn setup-sketch! [img-src]
   (dosync
    (ref-set img (q/load-image img-src)))
 
-  (q/frame-rate 10000)
+  (q/frame-rate 10000)                 ; High framerate so that Quil tries to iterate as fast as possible.
   (q/background 240)                   ; Clear the sketch by filling it with light-grey color.
-  (q/image @img 50 50)                 ; Draw our image
+  (q/image @img 50 50)                 ; Draw our image.
   )
 
 (defn dominant-color [img-src]
@@ -35,19 +38,7 @@
       (q/begin-shape)
       (doseq [{:keys [x y]} (:polygon shape)]
         (q/vertex x y))
-      (q/end-shape))
-
-    ;; Debug text
-    ;; (q/fill 255 255 255)
-    ;; (q/rect 0 200 200 25)
-    ;; (q/fill 0)
-    ;; (q/text-align :left)
-    ;; (let [used-color (q/get-pixel 100 100)]
-    ;;   (q/text (str (q/red used-color) " "
-    ;;                (q/green used-color) " "
-    ;;                (q/blue used-color) " "
-    ;;                (q/alpha used-color)) 0 215))
-    ))
+      (q/end-shape))))
 
 
 (defn draw-text-box [text bx by bw bh]
@@ -58,10 +49,6 @@
     (q/fill 0)
     (q/text-align :center)
     (q/text text (/ bw 2) (+ 4 (/ bh 2)))))
-
-(defn round-places [number decimals]
-  (let [factor (expt 10 decimals)]
-    (double (/ (round (* factor number)) factor))))
 
 (defn draw [state]
   (q/no-stroke)
@@ -78,14 +65,26 @@
 
     (draw-text-box (str "Elapsed time: " (round-places (/ (q/millis) 1000) 2) "s") 50 25 200 25)))
 
-(defn- color-distance [c1 c2]
-  (let [to-rgb   (fn [c] (map (fn [f] (f c)) [q/red q/green q/blue]))
-        rgb1     (to-rgb c1)
+
+                                        ; Fitness Calculation
+
+(defn- to-rgb
+  "Returns RGB values for a Quil color"
+  [color]
+  (map (fn [f] (f color)) [q/red q/green q/blue]))
+
+(defn- color-distance
+  "Computes a distance between the RGB values of two colors `c1` and `c2`"
+  [c1 c2]
+  (let [rgb1     (to-rgb c1)
         rgb2     (to-rgb c2)
         distance (fn [p1 p2] (abs (- p1 p2)))]
     (reduce + (map distance rgb1 rgb2))))
 
-(defn- compute-real-fitness [creature]
+(defn- compute-real-fitness
+  "Returns the sum of the color differences in each pixel of both the creature's
+  image and the original image"
+  [creature]
   (let [creature-img    (q/get-pixel 550 50 img-size img-size)
         creature-pixels (q/pixels creature-img)
         original-pixels (q/pixels @img)]
@@ -123,19 +122,3 @@
 (s/fdef compute-fitness
         :args (s/coll-of :evo-images.specs/creature :count 1)
         :ret  double?)
-
-;; (do (stest/unstrument `setup-sketch!)
-;;     (stest/unstrument `dominant-color)
-;;     (stest/unstrument `draw-creature)
-;;     (stest/unstrument `draw)
-;;     (stest/unstrument `color-distance)
-;;     (stest/unstrument `compute-real-fitness)
-;;     (stest/unstrument `compute-fitness))
-
-;; (do (stest/instrument `setup-sketch!)
-;;     (stest/instrument `dominant-color)
-;;     (stest/instrument `draw-creature)
-;;     (stest/instrument `draw)
-;;     (stest/instrument `color-distance)
-;;     (stest/instrument `compute-real-fitness)
-;;     (stest/instrument `compute-fitness))

@@ -1,6 +1,7 @@
 (ns evo-images.core
   (:gen-class)
-  (:require [evo-images.drawing :refer [dominant-color draw setup-sketch!]]
+  (:require [clojure.spec.test :as stest]
+            [evo-images.drawing :refer [dominant-color draw setup-sketch!]]
             [evo-images.evolution :refer [evolve init-state]]
             [quil.core :as q]
             [quil.middleware :as m]))
@@ -24,3 +25,7 @@
 
 (defn -main [& args]
   (start (first args)))
+
+
+;; (stest/unstrument)
+;; (stest/instrument)

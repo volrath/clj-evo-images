@@ -1,7 +1,6 @@
 (ns evo-images.evolution
   (:require [clojure.spec :as s]
             [clojure.spec.gen :as gen]
-            [clojure.spec.test :as stest]
             [evo-images.drawing :refer [compute-fitness img-size]]
             evo-images.specs
             [evo-images.specs :refer [max-points max-shapes]]))
@@ -118,21 +117,3 @@
 (s/fdef evolve
         :args (s/coll-of :evo-images.specs/state :count 1)
         :ret  :evo-images.specs/state)
-
-;; (do (stest/unstrument `mutate-shape-polygon)
-;;     (stest/unstrument `mutate-shape-color)
-;;     (stest/unstrument `mutate-shape)
-;;     (stest/unstrument `mutate)
-;;     (stest/unstrument `compete)
-;;     (stest/unstrument `evolve)
-;;     (stest/unstrument `create-creature)
-;;     (stest/unstrument `init-state))
-
-;; (do (stest/instrument `mutate-shape-polygon)
-;;     (stest/instrument `mutate-shape-color)
-;;     (stest/instrument `mutate-shape)
-;;     (stest/instrument `mutate)
-;;     (stest/instrument `compete)
-;;     (stest/instrument `evolve)
-;;     (stest/instrument `create-creature)
-;;     (stest/instrument `init-state))
