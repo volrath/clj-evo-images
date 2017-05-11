@@ -18,24 +18,26 @@
 
 (defn create-creature
   ([]
-   (gen/generate (s/gen :evo-images.evolution/creature)))
+   (gen/generate (s/gen :evo-images.specs/creature)))
   ([tint]
    (let [creature (create-creature)
          tint-shape (fn [shape] (assoc shape :color tint))]
      (mapv tint-shape creature))))
 
 (defn init-state [dominant-color]
-  (let [initial-creature (create-creature dominant-color)]
+  (let [initial-creature (if (nil? dominant-color)
+                           (create-creature)
+                           (create-creature dominant-color))]
     [0 0 0.0 initial-creature initial-creature]))
 
 
                                         ; Mutation
 
-(defn mutate-shape-points [points]
+(defn mutate-shape-polygon [polygon]
   (let [roulette (rand)]
     (cond
-      (< roulette (:swap-point mutation-thresholds)) (assoc points (rand-int max-points) (gen/generate (s/gen :evo-images.evolution/point)))
-      :else (assoc-in points [(rand-int max-points) (rand-nth [:x :y])] (rand-int (+ img-size 1))))))
+      (< roulette (:swap-point mutation-thresholds)) (assoc polygon (rand-int max-points) (gen/generate (s/gen :evo-images.evolution/point)))
+      :else (assoc-in polygon [(rand-int max-points) (rand-nth [:x :y])] (rand-int (+ img-size 1))))))
 
 (defn mutate-shape-color [color]
   (let [roulette (rand)]
@@ -49,7 +51,7 @@
     (cond
       (< roulette whole-piece-threshold)             (gen/generate (s/gen :evo-images.evolution/shape)) ; Change the whole shape for a new one
       (< roulette (/ (- 1 whole-piece-threshold) 2)) (update shape :color mutate-shape-color)
-      :else                                          (update shape :points mutate-shape-points))))
+      :else                                          (update shape :polygon mutate-shape-polygon))))
 
 (defn- mutate [creature]
   (update creature (rand-int max-shapes) mutate-shape))
@@ -78,44 +80,44 @@
 ;; Initializers
 
 (s/fdef init-state
-        :ret :evo-images.evolution/state)
+        :ret :evo-images.specs/state)
 
 (s/fdef create-creature
         :args (s/cat :tint (s/? (s/coll-of int? :count 4)))  ;; ::color
-        :ret  :evo-images.evolution/creature)
+        :ret  :evo-images.specs/creature)
 
 ;; Mutation
 
-(s/fdef mutate-shape-points
-        :args (s/cat :points :evo-images.evolution/points)
-        :ret  :evo-images.evolution/points)
+(s/fdef mutate-shape-polygon
+        :args (s/cat :polygon :evo-images.specs/polygon)
+        :ret  :evo-images.specs/polygon)
 
 (s/fdef mutate-shape-color
-        :args (s/coll-of :evo-images.evolution/color :count 1)
-        :ret  :evo-images.evolution/color)
+        :args (s/coll-of :evo-images.specs/color :count 1)
+        :ret  :evo-images.specs/color)
 
 (s/fdef mutate-shape
-        :args (s/cat :shape :evo-images.evolution/shape)
-        :ret  :evo-images.evolution/shape)
+        :args (s/cat :shape :evo-images.specs/shape)
+        :ret  :evo-images.specs/shape)
 
 (s/fdef mutate
-        :args (s/cat :creature :evo-images.evolution/creature)
-        :ret  :evo-images.evolution/creature)
+        :args (s/cat :creature :evo-images.specs/creature)
+        :ret  :evo-images.specs/creature)
 
 ;; Survival
 
 (s/fdef compete
-        :args (s/cat :max-fitness :evo-images.evolution/fitness
-                     :best        :evo-images.evolution/creature
-                     :competing   :evo-images.evolution/creature)
-        :ret  (s/cat :max-fitness :evo-images.evolution/fitness
-                     :best        :evo-images.evolution/creature))
+        :args (s/cat :max-fitness :evo-images.specs/fitness
+                     :best        :evo-images.specs/creature
+                     :competing   :evo-images.specs/creature)
+        :ret  (s/cat :max-fitness :evo-images.specs/fitness
+                     :best        :evo-images.specs/creature))
 
 (s/fdef evolve
-        :args (s/coll-of :evo-images.evolution/state :count 1)
-        :ret  :evo-images.evolution/state)
+        :args (s/coll-of :evo-images.specs/state :count 1)
+        :ret  :evo-images.specs/state)
 
-;; (do (stest/unstrument `mutate-shape-points)
+;; (do (stest/unstrument `mutate-shape-polygon)
 ;;     (stest/unstrument `mutate-shape-color)
 ;;     (stest/unstrument `mutate-shape)
 ;;     (stest/unstrument `mutate)
@@ -124,7 +126,7 @@
 ;;     (stest/unstrument `create-creature)
 ;;     (stest/unstrument `init-state))
 
-;; (do (stest/instrument `mutate-shape-points)
+;; (do (stest/instrument `mutate-shape-polygon)
 ;;     (stest/instrument `mutate-shape-color)
 ;;     (stest/instrument `mutate-shape)
 ;;     (stest/instrument `mutate)

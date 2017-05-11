@@ -8,21 +8,22 @@
 
                                         ; Evolution
 
-(s/def :evo-images.evolution/x (s/int-in 0 200))
-(s/def :evo-images.evolution/y (s/int-in 0 200))
-(s/def :evo-images.evolution/point (s/keys :req-un [:evo-images.evolution/x :evo-images.evolution/y]))
-(s/def :evo-images.evolution/points (s/coll-of :evo-images.evolution/point :kind vector? :count max-points))
-(s/def :evo-images.evolution/color (s/cat :R (s/int-in 0 256)
+(s/def ::x (s/int-in 0 200))
+(s/def ::y (s/int-in 0 200))
+(s/def ::point (s/keys :req-un [::x ::y]))
+(s/def ::polygon (s/coll-of ::point :kind vector? :count max-points))
+(s/def ::color (s/cat :R (s/int-in 0 256)
                       :G (s/int-in 0 256)
                       :B (s/int-in 0 256)
                       :A (s/int-in 0 256)))
-(s/def :evo-images.evolution/shape (s/keys :req-un [:evo-images.evolution/color :evo-images.evolution/points]))
-(s/def :evo-images.evolution/creature (s/coll-of :evo-images.evolution/shape :kind vector? :count 50))
+(s/def ::shape (s/keys :req-un [::color ::polygon]))
+(s/def ::creature (s/coll-of ::shape :kind vector? :count max-shapes))
 
-(s/def :evo-images.evolution/fitness (s/double-in 0 100))
-(s/def :evo-images.evolution/mutation (s/or :zero zero? :pos-int pos-int?))
-(s/def :evo-images.evolution/state (s/cat :iteration    :evo-images.evolution/iteration
-                                          :improvements :evo-images.evolution/mutation
-                                          :max-fitness  :evo-images.evolution/fitness
-                                          :best         :evo-images.evolution/creature
-                                          :competing    :evo-images.evolution/creature))
+(s/def ::iteration (s/or :zero zero? :pos-int pos-int?))
+(s/def ::mutation (s/or :zero zero? :pos-int pos-int?))
+(s/def ::fitness (s/double-in 0 100))
+(s/def ::state (s/cat :iteration    ::iteration
+                      :improvements ::mutation
+                      :max-fitness  ::fitness
+                      :best         ::creature
+                      :competing    ::creature))

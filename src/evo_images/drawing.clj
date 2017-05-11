@@ -33,7 +33,7 @@
       (apply q/fill (:color shape))
 
       (q/begin-shape)
-      (doseq [{:keys [x y]} (:points shape)]
+      (doseq [{:keys [x y]} (:polygon shape)]
         (q/vertex x y))
       (q/end-shape))
 
@@ -104,24 +104,24 @@
 
 (s/fdef dominant-color
         :args (s/cat :img-src string?)
-        :ret  :evo-images.evolution/color)
+        :ret  :evo-images.specs/color)
 
 (s/fdef draw-creature
-        :args (s/cat :cx int? :cy int? :creature :evo-images.evolution/creature))
+        :args (s/cat :cx int? :cy int? :creature :evo-images.specs/creature))
 
 (s/fdef draw
-        :args (s/coll-of :evo-images.evolution/state :count 1))
+        :args (s/coll-of :evo-images.specs/state :count 1))
 
 (s/fdef color-distance
         :args (s/cat :c1 int? :c2 int?)
         :ret  int?)
 
 (s/fdef compute-real-fitness
-        :args (s/coll-of :evo-images.evolution/creature :count 1)
+        :args (s/coll-of :evo-images.specs/creature :count 1)
         :ret  int?)
 
 (s/fdef compute-fitness
-        :args (s/coll-of :evo-images.evolution/creature :count 1)
+        :args (s/coll-of :evo-images.specs/creature :count 1)
         :ret  double?)
 
 ;; (do (stest/unstrument `setup-sketch!)
