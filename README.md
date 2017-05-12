@@ -1,50 +1,24 @@
-# evo-images
+# Evolutionary composition of images using a Genetic Algorithm
 
-FIXME: description
+Based
+on:
+[Genetic Programming: Evolution of Monalisa - Roger Johansson](https://rogerjohansson.blog/2008/12/07/genetic-programming-evolution-of-mona-lisa/),
+and [this javascript implementation](http://alteredqualia.com/visualization/evolve/)
 
-## Installation
+A Genetic Algorithm that uses a simulated annealing-like heuristic to "evolve" a
+representation of a given image using a finite set of polygons, while
+leveraging [clojure.spec](https://clojure.org/guides/spec) to generate random
+data.
 
-Download from http://example.com/FIXME.
+ - [Slides for talk at clojure.berlin - May 10th, 2017](http://volrath.me/talks/clj-evo-images)
 
 ## Usage
 
-FIXME: explanation
+Run it with boot:
 
-Run the project directly:
+    $ boot wait run
 
-    $ boot run
-
-Run the project's tests (they'll fail until you edit them):
-
-    $ boot test
-
-Build an uberjar from the project:
+Or standalone - build an uberjar from the project:
 
     $ boot build
-
-Run the uberjar:
-
     $ java -jar target/evo-images-0.1.0-SNAPSHOT-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
