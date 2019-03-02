@@ -10,7 +10,7 @@ representation of a given image using a finite set of polygons, while
 leveraging [clojure.spec](https://clojure.org/guides/spec) to generate random
 data.
 
- - [Slides for talk at clojure.berlin - May 10th, 2017](http://volrath.me/talks/clj-evo-images)
+ - [Slides for talk at clojure.berlin - May 10th, 2017](https://volrath.github.io/clj-evo-images/)
 
 ## Usage
 
