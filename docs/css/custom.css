@@ -1,0 +1,23 @@
+.reveal section.intro p { font-size: .7em }
+
+.reveal section img { border: 0; box-shadow: none; margin: 0 }
+.reveal section img.bordered { border: 4px solid #333; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15) }
+.reveal section img.berlin { margin-right: .25em }
+
+
+.ga-1 { display: flex; justify-content: center; align-items: center }
+.reveal div.ga-1-def { margin-left: 0.5em }
+
+.reveal div.op { display: flex; justify-content: center }
+.reveal div.op img { margin: 0 .25em }
+
+ol.evolve { font-size: 0.9em; width: 80% }
+ol.evolve li { margin-bottom: .7em }
+ol.evolve li code { color: #F22C40 }
+
+.fitness { display: flex; justify-content: center; align-items: center }
+.reveal div.fitness img { margin: 0 .25em }
+
+ul.fin { font-size: .8em }
+
+.striked { text-decoration: line-through }
